@@ -1,0 +1,3 @@
+2024-02-16 03:01:30,549 12673 [main] INFO  TransactionObserverImpl - Transaction Type: Creation  Account Number: 21 Amount: 800000.0
+2024-02-16 03:02:28,760 20237 [main] INFO  TransactionObserverImpl - Transaction Type: Creation  Account Number: 22 Amount: 800000.0
+2024-02-16 03:03:35,457 12352 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:23 -- Amount: 5600.0
