@@ -8,7 +8,7 @@ public class TransactionObserverImpl implements TransactionObserver {
     private static final Logger logger = LoggerFactory.getLogger(TransactionObserverImpl.class.getSimpleName());
 
     @Override
-    public void onTransaction(String accountNumber, String transactionType, double amount) {
+    public void onTransaction(String accountNumber, String transactionType, Double amount) {
         logger.info("Transaction Type:{} -- Account Number:{} -- Amount:{}",
                 transactionType,
                 accountNumber,

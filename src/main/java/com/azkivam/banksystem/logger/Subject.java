@@ -19,7 +19,7 @@ public abstract class Subject {
         observers.remove(observer);
     }
 
-    public void notifyObservers(String accountNumber, String transactionType, double amount) {
+    public void notifyObservers(String accountNumber, String transactionType, Double amount) {
         for (TransactionObserver observer : observers)
             observer.onTransaction(accountNumber, transactionType, amount);
     }
