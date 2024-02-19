@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -15,47 +18,55 @@ class BankImplTest {
     @Autowired
     private ApplicationContext applicationContext;
 
-//    Bank bank = applicationContext.getBean(Bank.class);
-
     @Test
     void createAccount() {
-        Bank bank = applicationContext.getBean(Bank.class);
-        BankAccount mehdi = bank.createAccount("ghzvaevzvasqwqw", 5600.0);
-        System.out.println(mehdi.getAccountNumber());
-        System.out.println(mehdi.getBalance());
-        System.out.println(mehdi.getHolderName());
+        Bank bankService = getBankService();
+        BankAccount sadeghAccount = bankService.createAccount("sadegh", 5500.0);
+
+        assertEquals(37L, sadeghAccount.getAccountNumber());
+        assertEquals("sadegh", sadeghAccount.getHolderName());
+        assertEquals(5500.0, sadeghAccount.getBalance());
     }
 
     @Test
     void deposit() {
-        Bank bank1 = applicationContext.getBean(Bank.class);
-        BankAccount bankAccount = bank1.deposit(1L, 3000.0);
+        Bank bankService = getBankService();
+        BankAccount bankAccount = bankService.deposit(36L, 830.0);
+
+        assertEquals(1000L, bankAccount.getBalance());
+        assertEquals(36L, bankAccount.getAccountNumber());
+    }
+
+    @Test
+    void withdraw() {
+        Bank bankService = getBankService();
+        BankAccount bankAccount = bankService.withdraw(37L, 500.0);
+
+        assertEquals(5000L, bankAccount.getBalance());
+        assertEquals(37L, bankAccount.getAccountNumber());
         System.out.println(bankAccount.getAccountNumber());
         System.out.println(bankAccount.getBalance());
         System.out.println(bankAccount.getHolderName());
     }
 
-    @Test
-    void withdraw() {
-        Bank bank1 = applicationContext.getBean(Bank.class);
-        BankAccount bankAccount = bank1.withdraw(1L, 500.0);
-        System.out.println(bankAccount.getAccountNumber());
-        System.out.println(bankAccount.getBalance());
-        System.out.println(bankAccount.getHolderName());
-    }
-//
+    //
     @Test
     void transferFunds() {
-        Bank bank1 = applicationContext.getBean(Bank.class);
-        bank1.transferFunds(1L, 3L, 1500.0);
-        System.out.println(bank1.displayAccountBalance(1L));
-        System.out.println(bank1.displayAccountBalance(3L));
+        Bank bankService = getBankService();
+        bankService.transferFunds(37L, 36L, 1000.0);
+        System.out.println(bankService.displayAccountBalance(37L));
+        System.out.println(bankService.displayAccountBalance(36L));
     }
-//
+
+    //
     @Test
     void displayAccountBalance() {
-        Bank bank1 = applicationContext.getBean(Bank.class);
-        Double aDouble = bank1.displayAccountBalance(1L);
-        System.out.println(aDouble);
+        Bank bankService = getBankService();
+        Double balance = bankService.displayAccountBalance(37L);
+        assertEquals(5000L, balance);
+    }
+
+    private Bank getBankService() {
+        return applicationContext.getBean(Bank.class);
     }
 }

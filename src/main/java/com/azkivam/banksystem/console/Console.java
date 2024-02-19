@@ -2,7 +2,6 @@ package com.azkivam.banksystem.console;
 
 import com.azkivam.banksystem.entity.BankAccount;
 import com.azkivam.banksystem.service.Bank;
-import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 
 import java.util.InputMismatchException;

@@ -48,4 +48,13 @@ public class BankAccount {
     public void setBalance(Double balance) {
         this.balance = balance;
     }
+
+    @Override
+    public String toString() {
+        return "BankAccount{" +
+                "accountNumber=" + accountNumber +
+                ", holderName='" + holderName + '\'' +
+                ", balance=" + balance +
+                '}';
+    }
 }

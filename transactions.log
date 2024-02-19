@@ -1,5 +1,10 @@
-2024-02-16 06:45:37,518 76851 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:24 -- Amount:274.0
-2024-02-16 06:47:25,582 16992 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:25 -- Amount:3256235.0
-2024-02-16 07:03:37,394 18945 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:26 -- Amount:56.0
-2024-02-16 07:06:19,386 27119 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:27 -- Amount:34.0
-2024-02-16 07:11:38,507 20994 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:28 -- Amount:14000.0
+2024-02-19 04:55:54,752 13385 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:36 -- Amount:170.0
+2024-02-19 04:58:40,702 13333 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:37 -- Amount:5500.0
+2024-02-19 05:01:06,320 13116 [main] INFO  TransactionObserverImpl - Transaction Type:Deposit -- Account Number:36 -- Amount:830.0
+2024-02-19 05:03:04,992 12914 [main] INFO  TransactionObserverImpl - Transaction Type:Withdraw -- Account Number:37 -- Amount:500.0
+2024-02-19 05:03:42,292 13014 [main] INFO  TransactionObserverImpl - Transaction Type:Balance -- Account Number:36 -- Amount:null
+2024-02-19 05:04:11,329 12756 [main] INFO  TransactionObserverImpl - Transaction Type:Balance -- Account Number:37 -- Amount:null
+2024-02-19 05:04:59,908 12406 [main] INFO  TransactionObserverImpl - Transaction Type:Balance -- Account Number:37 -- Amount:null
+2024-02-19 05:10:48,245 12581 [main] INFO  TransactionObserverImpl - Transaction Type:Transfer -- Account Number:36 -- Amount:1000.0
+2024-02-19 05:10:48,384 12720 [main] INFO  TransactionObserverImpl - Transaction Type:Balance -- Account Number:37 -- Amount:4000.0
+2024-02-19 05:10:48,389 12725 [main] INFO  TransactionObserverImpl - Transaction Type:Balance -- Account Number:36 -- Amount:2000.0

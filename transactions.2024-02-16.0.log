@@ -1,0 +1,5 @@
+2024-02-16 06:45:37,518 76851 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:24 -- Amount:274.0
+2024-02-16 06:47:25,582 16992 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:25 -- Amount:3256235.0
+2024-02-16 07:03:37,394 18945 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:26 -- Amount:56.0
+2024-02-16 07:06:19,386 27119 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:27 -- Amount:34.0
+2024-02-16 07:11:38,507 20994 [main] INFO  TransactionObserverImpl - Transaction Type:Creation -- Account Number:28 -- Amount:14000.0
