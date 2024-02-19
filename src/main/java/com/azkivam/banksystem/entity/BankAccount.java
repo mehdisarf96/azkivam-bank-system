@@ -17,6 +17,10 @@ public class BankAccount {
     @Column(name = "BALANCE")
     private Double balance;
 
+    @Version
+    @Column(name = "optlock", columnDefinition = "bigint DEFAULT 0", nullable = false)
+    private long version = 0L;
+
     public BankAccount() {
     }
 
@@ -49,12 +53,22 @@ public class BankAccount {
         this.balance = balance;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    protected void setVersion(long version) {
+        this.version = version;
+    }
+
+
     @Override
     public String toString() {
         return "BankAccount{" +
                 "accountNumber=" + accountNumber +
                 ", holderName='" + holderName + '\'' +
                 ", balance=" + balance +
+                ", version=" + version +
                 '}';
     }
 }
