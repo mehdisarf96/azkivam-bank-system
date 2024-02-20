@@ -29,7 +29,7 @@ public class BankImpl extends Subject implements Bank {
     public BankAccount createAccount(String holderName, Double initialBalance) { /// many parameter or encapsulate it in a object?
         synchronized (creationLock) {
             Long id = accountDao.create(new BankAccount(holderName, initialBalance));
-            notifyObservers(String.valueOf(id), TransactionType.CREATE.value, initialBalance);
+            notifyObservers(String.valueOf(id), TransactionType.CREATE, initialBalance);
             return accountDao.get(id);
         }
     }
@@ -43,7 +43,7 @@ public class BankImpl extends Subject implements Bank {
             Double futureBalance = currentBalance + amount;
             theAccount.setBalance(futureBalance);
             BankAccount updatedAccount = accountDao.update(theAccount);
-            notifyObservers(String.valueOf(updatedAccount.getAccountNumber()), TransactionType.DEPOSIT.value, amount);
+            notifyObservers(String.valueOf(updatedAccount.getAccountNumber()), TransactionType.DEPOSIT, amount);
             return updatedAccount;
         }
     }
@@ -57,7 +57,7 @@ public class BankImpl extends Subject implements Bank {
             Double futureBalance = currentBalance - amount;
             bankAccount.setBalance(futureBalance);
             BankAccount updatedAccount = accountDao.update(bankAccount);
-            notifyObservers(String.valueOf(updatedAccount.getAccountNumber()), TransactionType.WITHDRAW.value, amount);
+            notifyObservers(String.valueOf(updatedAccount.getAccountNumber()), TransactionType.WITHDRAW, amount);
             return updatedAccount;
         }
     }
@@ -72,7 +72,7 @@ public class BankImpl extends Subject implements Bank {
             destinationAccount.setBalance(destinationAccount.getBalance() + amount);
             accountDao.update(sourceAccount);
             accountDao.update(destinationAccount);
-            notifyObservers(String.valueOf(destinationAccountNumber), TransactionType.TRANSFER.value, amount);
+            notifyObservers(String.valueOf(destinationAccountNumber), TransactionType.TRANSFER, amount);
         }
     }
 
@@ -82,7 +82,7 @@ public class BankImpl extends Subject implements Bank {
         synchronized (balanceLock) {
             BankAccount bankAccount = accountDao.get(accountNumber);
             Double balance = bankAccount.getBalance();
-            notifyObservers(String.valueOf(accountNumber), TransactionType.BALANCE.value, balance);
+            notifyObservers(String.valueOf(accountNumber), TransactionType.BALANCE, balance);
             return balance;
         }
     }

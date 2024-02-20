@@ -24,34 +24,40 @@ public class HibernateAccountRepository implements GenericDao<BankAccount, Long>
 
     @Override
     public Long create(BankAccount account) {
-        Session session = sessionFactory.openSession();
-        return (Long) session.save(account);
+        try (Session session = sessionFactory.openSession()) {
+            return (Long) session.save(account);
+        }
     }
 
     @Override
     public BankAccount update(BankAccount account) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        BankAccount bankAccount = session.get(BankAccount.class, account.getAccountNumber());
-        bankAccount.setBalance(account.getBalance());
-        bankAccount.setHolderName(account.getHolderName());
-        session.update(bankAccount);
-        transaction.commit();
-        return bankAccount;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            BankAccount bankAccount = session.get(BankAccount.class, account.getAccountNumber());
+            bankAccount.setBalance(account.getBalance());
+            bankAccount.setHolderName(account.getHolderName());
+            session.update(bankAccount);
+            transaction.commit();
+            return bankAccount;
+        }
     }
 
     @Override
     public BankAccount get(Long id) {
-        Session session = sessionFactory.openSession();
-        return session.get(BankAccount.class, id);
+        try (Session session = sessionFactory.openSession()) {
+            BankAccount bankAccount = session.get(BankAccount.class, id);
+            session.close();
+            return bankAccount;
+        }
     }
 
     @Override
     public void delete(Long id) {
-        Session session = sessionFactory.openSession();
-        Transaction transaction = session.beginTransaction();
-        BankAccount bankAccount = session.get(BankAccount.class, id);
-        session.delete(bankAccount);
-        transaction.commit();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            BankAccount bankAccount = session.get(BankAccount.class, id);
+            session.delete(bankAccount);
+            transaction.commit();
+        }
     }
 }

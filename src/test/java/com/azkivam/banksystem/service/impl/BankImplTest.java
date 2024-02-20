@@ -54,8 +54,11 @@ class BankImplTest {
     void transferFunds() {
         Bank bankService = getBankService();
         bankService.transferFunds(37L, 36L, 1000.0);
-        System.out.println(bankService.displayAccountBalance(37L));
-        System.out.println(bankService.displayAccountBalance(36L));
+        Double sourceAccountBalance = bankService.displayAccountBalance(37L);
+        Double destinationAccountBalance = bankService.displayAccountBalance(36L);
+
+        assertEquals(4000L, sourceAccountBalance);
+        assertEquals(2000L, destinationAccountBalance);
     }
 
     //

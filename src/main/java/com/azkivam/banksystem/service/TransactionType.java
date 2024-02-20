@@ -1,15 +1,9 @@
 package com.azkivam.banksystem.service;
 
-public enum TransactionType { // should enum has getter setter or haminjuri khube?
-    CREATE("Creation"),
-    WITHDRAW("Withdraw"),
-    DEPOSIT("Deposit"),
-    TRANSFER("Transfer"),
-    BALANCE("Balance");
-
-    public final String value;
-
-    TransactionType(String value) {
-        this.value = value;
-    }
+public class TransactionType {
+    public final static String CREATE = "create";
+    public final static String WITHDRAW = "withdraw";
+    public final static String DEPOSIT = "deposit";
+    public final static String TRANSFER = "transfer";
+    public final static String BALANCE = "balance";
 }

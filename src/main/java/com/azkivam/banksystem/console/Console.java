@@ -2,6 +2,8 @@ package com.azkivam.banksystem.console;
 
 import com.azkivam.banksystem.entity.BankAccount;
 import com.azkivam.banksystem.service.Bank;
+import com.azkivam.banksystem.service.TransactionType;
+import com.azkivam.banksystem.service.strategy.TransactionFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.InputMismatchException;
@@ -21,8 +23,11 @@ public class Console {
 
     private Bank bank;
 
-    public Console(Bank bank) {
+    private TransactionFactory transactionFactory;
+
+    public Console(Bank bank, TransactionFactory transactionFactory) {
         this.bank = bank;
+        this.transactionFactory = transactionFactory;
     }
 
     public void runConsole() {
@@ -34,80 +39,66 @@ public class Console {
                 try {
                     displayMainMenu();
                     int chosenOption = readOptionsFromUser(scanner);
+
                     if (chosenOption == 1) {
-                        System.out.println("----------------------------------------");
-                        System.out.print("Please Enter Your Name:");
-                        scanner.nextLine();
-                        String holderName = scanner.nextLine();
-                        System.out.print("Enter The Initial Balance:");
-                        double initialBalance = scanner.nextDouble();
-
+                        TransactionInfo transactionInfo = getCreationInfoFromUSer(scanner);
                         Future<BankAccount> persistedAccountFuture =
-                                executorService.submit(() -> bank.createAccount(holderName, initialBalance));
+                                executorService.submit(() -> transactionFactory.execute(
+                                        TransactionType.CREATE, null, null,
+                                        transactionInfo.getHolderName(), transactionInfo.getAmount()));
                         BankAccount persistedAccount = persistedAccountFuture.get();
-
                         printMessageForSuccessfullAccountCreation(persistedAccount);
-//                    break;
                     } else if (chosenOption == 2) {
-                        System.out.println("----------------------------------------");
-                        System.out.print("Please Enter The Account Number:");
-                        Long accountNumber = scanner.nextLong();
-                        System.out.print("Enter The Amount:");
-                        double amount = scanner.nextDouble();
-
+                        TransactionInfo transactionInfo = getDepositInfoFromUser(scanner);
                         Future<BankAccount> updatedAccountFuture =
-                                executorService.submit(() -> bank.deposit(accountNumber, amount));
+                                executorService.submit(
+                                        () -> transactionFactory.execute(
+                                                TransactionType.DEPOSIT, transactionInfo.getMainAccountNumber(),
+                                                null, null, transactionInfo.getAmount()));
                         BankAccount updatedAccount = updatedAccountFuture.get();
                         printMessageForSuccessfulDeposit(updatedAccount);
-//                    break;
-
                     } else if (chosenOption == 3) {
-                        System.out.println("----------------------------------------");
-                        System.out.print("Please Enter The Account Number:");
-                        Long accountNumber = scanner.nextLong();
-                        System.out.print("Enter The Amount:");
-                        double amount = scanner.nextDouble();
-
+                        TransactionInfo withdrawInfoFromUser = getWithdrawInfoFromUser(scanner);
                         Future<BankAccount> updatedAccountFuture =
-                                executorService.submit(() -> bank.withdraw(accountNumber, amount));
+                                executorService.submit(() -> transactionFactory.execute(
+                                        TransactionType.WITHDRAW, withdrawInfoFromUser.getMainAccountNumber(),
+                                        null, null, withdrawInfoFromUser.getAmount()));
                         BankAccount updatedAccount = updatedAccountFuture.get();
                         printMessageForSuccessfulWithdraw(updatedAccount);
-//                    break;
-
                     } else if (chosenOption == 4) {
-                        System.out.println("----------------------------------------");
-                        System.out.print("Please Enter The \"Source\" Account Number:");
-                        Long sourceAccountNumber = scanner.nextLong();
-                        System.out.print("Please Enter The \"Destination\" Account Number:");
-                        Long destinationAccountNumber = scanner.nextLong();
-                        System.out.print("Enter The Amount Which You Want To Transfer:");
-                        double amount = scanner.nextDouble();
+                        TransactionInfo transferFundInfoFromUser = getTransferFundInfoFromUser(scanner);
 
                         ExecutorService executorsWithSingleThread = Executors.newFixedThreadPool(1);
-                        executorsWithSingleThread.submit(() -> bank.transferFunds(
-                                sourceAccountNumber,
-                                destinationAccountNumber,
-                                amount));
+                        Future<BankAccount> bankAccountFuture = executorsWithSingleThread.submit(() -> transactionFactory.execute(
+                                TransactionType.TRANSFER,
+                                transferFundInfoFromUser.getMainAccountNumber(),
+                                transferFundInfoFromUser.getDestinationAccountNumber(),
+                                null,
+                                transferFundInfoFromUser.getAmount()));
+                        bankAccountFuture.get();
 
-                        Future<Double> sourceAccountBalanceFuture =
-                                executorsWithSingleThread.submit(() -> bank.displayAccountBalance(sourceAccountNumber));
-                        Double sourceAccountBalance = sourceAccountBalanceFuture.get();
+                        Future<BankAccount> sourceAccountBalanceFuture = executorsWithSingleThread.submit(
+                                () -> transactionFactory.execute(
+                                        TransactionType.BALANCE, transferFundInfoFromUser.getMainAccountNumber(),
+                                        null, null, null));
+                        Double sourceAccountBalance = sourceAccountBalanceFuture.get().getBalance();
 
-                        Future<Double> destinationAccountBalanceFuture =
-                                executorsWithSingleThread.submit(() -> bank.displayAccountBalance(destinationAccountNumber));
-                        Double destinationAccountBalance = destinationAccountBalanceFuture.get();
-
+                        Future<BankAccount> destinationAccountBalanceFuture = executorsWithSingleThread.submit(
+                                () -> transactionFactory.execute(
+                                        TransactionType.BALANCE, transferFundInfoFromUser.getDestinationAccountNumber(),
+                                        null, null, null));
+                        Double destinationAccountBalance = destinationAccountBalanceFuture.get().getBalance();
+                        executorsWithSingleThread.shutdown();
                         printMessageForSuccessfulTransferFund(sourceAccountBalance, destinationAccountBalance);
-//                    break;
                     } else if (chosenOption == 5) {
-                        System.out.println("----------------------------------------");
-                        System.out.print("Please Enter The Account Number:");
-                        Long accountNumber = scanner.nextLong();
+                        Long accountNumber = getBalanceInfoFromUSer(scanner);
 
-                        Future<Double> balanceFuture =
-                                executorService.submit(() -> bank.displayAccountBalance(accountNumber));
+                        Future<BankAccount> balanceFuture = executorService.submit(
+                                () -> transactionFactory.execute(
+                                        TransactionType.BALANCE, accountNumber, null,
+                                        null, null));
 
-                        Double currentBalance = balanceFuture.get();
+                        Double currentBalance = balanceFuture.get().getBalance();
                         printMessageForSuccessfulGettingBalance(currentBalance);
                     } else if (chosenOption == 6) {
                         System.exit(0);
@@ -116,10 +107,9 @@ public class Console {
                     }
                 } catch (InputMismatchException exception) {
                     printErrorMessage(VALID_NUMBER_REQUEST_TEXT);
-                    scanner.next(); // nemituni nextInt() bezari chon uni ke scanner poshtesh
-                    // gir karde o narafte jolo, int nabude ke ba nextInt() bere jolo alan.
+                    scanner.next();
                 } catch (ExecutionException | InterruptedException exception) {
-                    printErrorMessage(ERROR_OCCURRED_REQUEST_TEXT );
+                    printErrorMessage(ERROR_OCCURRED_REQUEST_TEXT);
                 }
             }
         } finally {
@@ -128,19 +118,74 @@ public class Console {
 
     }
 
+    private Long getBalanceInfoFromUSer(Scanner scanner) {
+        System.out.println("----------------------------------------");
+        System.out.print("Please Enter The Account Number:");
+        return scanner.nextLong();
+    }
 
-    private static int readOptionsFromUser(Scanner scanner) {
+    private TransactionInfo getTransferFundInfoFromUser(Scanner scanner) {
+        System.out.println("----------------------------------------");
+        System.out.print("Please Enter The \"Source\" Account Number:");
+        Long sourceAccountNumber = scanner.nextLong();
+        System.out.print("Please Enter The \"Destination\" Account Number:");
+        Long destinationAccountNumber = scanner.nextLong();
+        System.out.print("Enter The Amount Which You Want To Transfer:");
+        double amount = scanner.nextDouble();
+
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setMainAccountNumber(sourceAccountNumber);
+        transactionInfo.setDestinationAccountNumber(destinationAccountNumber);
+        transactionInfo.setAmount(amount);
+
+        return transactionInfo;
+    }
+
+    private TransactionInfo getDepositInfoFromUser(Scanner scanner) {
+        System.out.println("----------------------------------------");
+        System.out.print("Please Enter The Account Number:");
+        Long accountNumber = scanner.nextLong();
+        System.out.print("Enter The Amount:");
+        double amount = scanner.nextDouble();
+
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setMainAccountNumber(accountNumber);
+        transactionInfo.setAmount(amount);
+
+        return transactionInfo;
+    }
+
+    private TransactionInfo getWithdrawInfoFromUser(Scanner scanner) {
+        return getDepositInfoFromUser(scanner);
+    }
+
+    private TransactionInfo getCreationInfoFromUSer(Scanner scanner) {
+        System.out.println("----------------------------------------");
+        System.out.print("Please Enter Your Name:");
+        scanner.nextLine();
+        String holderName = scanner.nextLine();
+        System.out.print("Enter The Initial Balance:");
+        double initialBalance = scanner.nextDouble();
+
+        TransactionInfo transactionInfo = new TransactionInfo();
+        transactionInfo.setAmount(initialBalance);
+        transactionInfo.setHolderName(holderName);
+        return transactionInfo;
+    }
+
+
+    private int readOptionsFromUser(Scanner scanner) {
         System.out.print("\n>>> Choose An Option:");
         return scanner.nextInt();
     }
 
-    private static void printErrorMessage(String message) {
+    private void printErrorMessage(String message) {
         System.out.println(STARS);
 //        System.out.println(System.lineSeparator().repeat(1));
         System.err.print(message);
     }
 
-    private static void printMessageForSuccessfullAccountCreation(BankAccount persistedAccount) {
+    private void printMessageForSuccessfullAccountCreation(BankAccount persistedAccount) {
         System.out.println("\n----------------------------------------");
         System.out.println("Congratulations on creating your new Azkivam Bank System Account!");
         System.out.println("Your Account Number:<< " + persistedAccount.getAccountNumber() + " >>");
@@ -148,7 +193,7 @@ public class Console {
         System.out.println("Enjoy! :)\n");
     }
 
-    private static void printMessageForSuccessfulDeposit(BankAccount updatedAccount) {
+    private void printMessageForSuccessfulDeposit(BankAccount updatedAccount) {
         System.out.println("\n----------------------------------------");
         System.out.println("The Deposit Operation Successfully Happened.");
         System.out.println("Your Account Balance:<< " + updatedAccount.getBalance() + " >>\n");
@@ -161,14 +206,14 @@ public class Console {
     }
 
 
-    private static void printMessageForSuccessfulTransferFund(Double sourceAccountBalance,
+    private void printMessageForSuccessfulTransferFund(Double sourceAccountBalance,
                                                               Double destinationAccountBalance) {
         System.out.println("\n----------------------------------------");
         System.out.println("Source Account Balance: " + sourceAccountBalance);
         System.out.println("Destination Account Balance: " + destinationAccountBalance);
     }
 
-    private static void printMessageForSuccessfulGettingBalance(Double accountBalance) {
+    private void printMessageForSuccessfulGettingBalance(Double accountBalance) {
         System.out.println("\n----------------------------------------");
         System.out.println("Account Balance: " + accountBalance);
     }
@@ -180,6 +225,11 @@ public class Console {
     }
 
     private void displayMainMenu() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         System.out.println();
         System.out.println("1. Create a new account");
         System.out.println("2. Deposit");
@@ -195,5 +245,44 @@ public class Console {
         System.out.println("1. Return to the Main Menu");
         System.out.println("2. Exit");
         System.out.print("----------------------------------------");
+    }
+
+    class TransactionInfo {
+        private Long mainAccountNumber;
+        private Long destinationAccountNumber;
+        private String holderName;
+        private Double amount;
+
+        public Long getMainAccountNumber() {
+            return mainAccountNumber;
+        }
+
+        public void setMainAccountNumber(Long mainAccountNumber) {
+            this.mainAccountNumber = mainAccountNumber;
+        }
+
+        public Long getDestinationAccountNumber() {
+            return destinationAccountNumber;
+        }
+
+        public void setDestinationAccountNumber(Long destinationAccountNumber) {
+            this.destinationAccountNumber = destinationAccountNumber;
+        }
+
+        public String getHolderName() {
+            return holderName;
+        }
+
+        public void setHolderName(String holderName) {
+            this.holderName = holderName;
+        }
+
+        public Double getAmount() {
+            return amount;
+        }
+
+        public void setAmount(Double amount) {
+            this.amount = amount;
+        }
     }
 }
