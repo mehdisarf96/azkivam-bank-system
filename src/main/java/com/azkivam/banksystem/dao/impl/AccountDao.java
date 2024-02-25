@@ -10,12 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class HibernateAccountRepository implements GenericDao<BankAccount, Long> {
+public class AccountDao implements GenericDao<BankAccount, Long> {
 
     private SessionFactory sessionFactory;
 
     @Autowired
-    public HibernateAccountRepository(EntityManagerFactory factory) {
+    public AccountDao(EntityManagerFactory factory) {
         if (factory.unwrap(SessionFactory.class) == null) {
             throw new NullPointerException("factory is not a hibernate factory");
         }

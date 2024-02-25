@@ -1,6 +1,6 @@
 package com.azkivam.banksystem.dao.hibernate.impl;
 
-import com.azkivam.banksystem.dao.impl.HibernateAccountRepository;
+import com.azkivam.banksystem.dao.impl.AccountDao;
 import com.azkivam.banksystem.entity.BankAccount;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.SessionFactory;
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class AccountDaoTest {
 
-    private HibernateAccountRepository hibernateAccountRepository;
+    private AccountDao accountDao;
 
     @Autowired
     private EntityManagerFactory entityManagerFactory;
@@ -22,12 +22,12 @@ class AccountDaoTest {
     @Test
     void create() {
         try (SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class)) {
-            hibernateAccountRepository = new HibernateAccountRepository(sessionFactory);
+            accountDao = new AccountDao(sessionFactory);
 
             BankAccount bankAccount = new BankAccount();
             bankAccount.setBalance(200.0);
             bankAccount.setHolderName("Ahmad Mahmoud");
-            Long id = hibernateAccountRepository.create(bankAccount);
+            Long id = accountDao.create(bankAccount);
             assertNotNull(id);
             assertEquals(35, id);
         }
@@ -37,14 +37,14 @@ class AccountDaoTest {
     @Transactional
     void update() {
         try (SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class)) {
-            hibernateAccountRepository = new HibernateAccountRepository(sessionFactory);
+            accountDao = new AccountDao(sessionFactory);
 
             BankAccount bankAccount = new BankAccount();
             bankAccount.setAccountNumber(26L);
             bankAccount.setBalance(500.0);
             bankAccount.setHolderName("reza");
 
-            BankAccount updatedBankAccount = hibernateAccountRepository.update(bankAccount);
+            BankAccount updatedBankAccount = accountDao.update(bankAccount);
 
             assertEquals(26L, updatedBankAccount.getAccountNumber());
             assertEquals(500.0, updatedBankAccount.getBalance());
@@ -55,8 +55,8 @@ class AccountDaoTest {
     @Test
     void get() {
         try (SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class)) {
-            hibernateAccountRepository = new HibernateAccountRepository(sessionFactory);
-            BankAccount retrievedAccount = hibernateAccountRepository.get(26L);
+            accountDao = new AccountDao(sessionFactory);
+            BankAccount retrievedAccount = accountDao.get(26L);
 
             assertEquals(26L, retrievedAccount.getAccountNumber());
             assertEquals(500.0, retrievedAccount.getBalance());
@@ -67,11 +67,11 @@ class AccountDaoTest {
     @Test
     void delete() {
         try (SessionFactory sessionFactory = entityManagerFactory.unwrap(SessionFactory.class)) {
-            hibernateAccountRepository = new HibernateAccountRepository(sessionFactory);
+            accountDao = new AccountDao(sessionFactory);
 
-            hibernateAccountRepository.delete(6L);
+            accountDao.delete(6L);
 
-            BankAccount bankAccount = hibernateAccountRepository.get(6L);
+            BankAccount bankAccount = accountDao.get(6L);
             assertNull(bankAccount);
         }
     }

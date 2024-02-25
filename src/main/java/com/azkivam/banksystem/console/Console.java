@@ -1,12 +1,12 @@
 package com.azkivam.banksystem.console;
 
 import com.azkivam.banksystem.entity.BankAccount;
-import com.azkivam.banksystem.service.Bank;
 import com.azkivam.banksystem.service.TransactionType;
-import com.azkivam.banksystem.service.strategy.TransactionFactory;
+import com.azkivam.banksystem.service.strategy.TransactionService;
 import org.springframework.stereotype.Component;
 
 import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -21,13 +21,11 @@ public class Console {
     private static final String ERROR_OCCURRED_REQUEST_TEXT =
             "\n*** An Error Occured. Please Try Again And Enter A \033[3mValid\033[0m Number! ***\t";
 
-    private Bank bank;
+    private final Map<String, TransactionService> transactionServiceMap;
 
-    private TransactionFactory transactionFactory;
 
-    public Console(Bank bank, TransactionFactory transactionFactory) {
-        this.bank = bank;
-        this.transactionFactory = transactionFactory;
+    public Console(Map<String, TransactionService> transactionServiceMap) {
+        this.transactionServiceMap = transactionServiceMap;
     }
 
     public void runConsole() {
@@ -42,26 +40,28 @@ public class Console {
 
                     if (chosenOption == 1) {
                         TransactionInfo transactionInfo = getCreationInfoFromUSer(scanner);
+
+                        TransactionService transactionService = getTransactionService(String.valueOf(chosenOption));
                         Future<BankAccount> persistedAccountFuture =
-                                executorService.submit(() -> transactionFactory.execute(
-                                        TransactionType.CREATE, null, null,
+                                executorService.submit(() -> transactionService.apply(null, null,
                                         transactionInfo.getHolderName(), transactionInfo.getAmount()));
                         BankAccount persistedAccount = persistedAccountFuture.get();
                         printMessageForSuccessfullAccountCreation(persistedAccount);
                     } else if (chosenOption == 2) {
                         TransactionInfo transactionInfo = getDepositInfoFromUser(scanner);
+
+                        TransactionService transactionService = getTransactionService(String.valueOf(chosenOption));
                         Future<BankAccount> updatedAccountFuture =
-                                executorService.submit(
-                                        () -> transactionFactory.execute(
-                                                TransactionType.DEPOSIT, transactionInfo.getMainAccountNumber(),
-                                                null, null, transactionInfo.getAmount()));
+                                executorService.submit(() -> transactionService.apply(transactionInfo.getMainAccountNumber(),
+                                        null, null, transactionInfo.getAmount()));
                         BankAccount updatedAccount = updatedAccountFuture.get();
                         printMessageForSuccessfulDeposit(updatedAccount);
                     } else if (chosenOption == 3) {
                         TransactionInfo withdrawInfoFromUser = getWithdrawInfoFromUser(scanner);
+
+                        TransactionService transactionService = getTransactionService(String.valueOf(chosenOption));
                         Future<BankAccount> updatedAccountFuture =
-                                executorService.submit(() -> transactionFactory.execute(
-                                        TransactionType.WITHDRAW, withdrawInfoFromUser.getMainAccountNumber(),
+                                executorService.submit(() -> transactionService.apply(withdrawInfoFromUser.getMainAccountNumber(),
                                         null, null, withdrawInfoFromUser.getAmount()));
                         BankAccount updatedAccount = updatedAccountFuture.get();
                         printMessageForSuccessfulWithdraw(updatedAccount);
@@ -69,34 +69,34 @@ public class Console {
                         TransactionInfo transferFundInfoFromUser = getTransferFundInfoFromUser(scanner);
 
                         ExecutorService executorsWithSingleThread = Executors.newFixedThreadPool(1);
-                        Future<BankAccount> bankAccountFuture = executorsWithSingleThread.submit(() -> transactionFactory.execute(
-                                TransactionType.TRANSFER,
-                                transferFundInfoFromUser.getMainAccountNumber(),
-                                transferFundInfoFromUser.getDestinationAccountNumber(),
-                                null,
-                                transferFundInfoFromUser.getAmount()));
+                        TransactionService transactionService = getTransactionService(String.valueOf(chosenOption));
+                        Future<BankAccount> bankAccountFuture =
+                                executorsWithSingleThread.submit(() -> transactionService.apply(
+                                        transferFundInfoFromUser.getMainAccountNumber(),
+                                        transferFundInfoFromUser.getDestinationAccountNumber(),
+                                        null,
+                                        transferFundInfoFromUser.getAmount()));
                         bankAccountFuture.get();
 
+                        TransactionService transactionService2 = getTransactionService(TransactionType.BALANCE);
                         Future<BankAccount> sourceAccountBalanceFuture = executorsWithSingleThread.submit(
-                                () -> transactionFactory.execute(
-                                        TransactionType.BALANCE, transferFundInfoFromUser.getMainAccountNumber(),
+                                () -> transactionService2.apply(transferFundInfoFromUser.getMainAccountNumber(),
                                         null, null, null));
                         Double sourceAccountBalance = sourceAccountBalanceFuture.get().getBalance();
 
                         Future<BankAccount> destinationAccountBalanceFuture = executorsWithSingleThread.submit(
-                                () -> transactionFactory.execute(
-                                        TransactionType.BALANCE, transferFundInfoFromUser.getDestinationAccountNumber(),
+                                () -> transactionService2.apply(transferFundInfoFromUser.getDestinationAccountNumber(),
                                         null, null, null));
+
                         Double destinationAccountBalance = destinationAccountBalanceFuture.get().getBalance();
                         executorsWithSingleThread.shutdown();
                         printMessageForSuccessfulTransferFund(sourceAccountBalance, destinationAccountBalance);
                     } else if (chosenOption == 5) {
                         Long accountNumber = getBalanceInfoFromUSer(scanner);
 
+                        TransactionService transactionService = getTransactionService(String.valueOf(chosenOption));
                         Future<BankAccount> balanceFuture = executorService.submit(
-                                () -> transactionFactory.execute(
-                                        TransactionType.BALANCE, accountNumber, null,
-                                        null, null));
+                                () -> transactionService.apply(accountNumber, null, null, null));
 
                         Double currentBalance = balanceFuture.get().getBalance();
                         printMessageForSuccessfulGettingBalance(currentBalance);
@@ -116,6 +116,14 @@ public class Console {
             executorService.shutdown();
         }
 
+    }
+
+    private TransactionService getTransactionService(String transactionType) {
+        TransactionService transactionService = transactionServiceMap.get(transactionType);
+        if (transactionService == null) {
+            throw new RuntimeException("Unsupported transaction type");
+        }
+        return transactionService;
     }
 
     private Long getBalanceInfoFromUSer(Scanner scanner) {
@@ -207,7 +215,7 @@ public class Console {
 
 
     private void printMessageForSuccessfulTransferFund(Double sourceAccountBalance,
-                                                              Double destinationAccountBalance) {
+                                                       Double destinationAccountBalance) {
         System.out.println("\n----------------------------------------");
         System.out.println("Source Account Balance: " + sourceAccountBalance);
         System.out.println("Destination Account Balance: " + destinationAccountBalance);
