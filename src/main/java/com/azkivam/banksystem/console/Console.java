@@ -1,6 +1,8 @@
 package com.azkivam.banksystem.console;
 
 import com.azkivam.banksystem.entity.BankAccount;
+import com.azkivam.banksystem.exception.InsufficientBalanceException;
+import com.azkivam.banksystem.exception.NegativeAmountException;
 import com.azkivam.banksystem.service.TransactionType;
 import com.azkivam.banksystem.service.strategy.TransactionService;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import java.util.concurrent.Future;
 public class Console {
     private static final String STARS = "****************************************";
     private static final String VALID_NUMBER_REQUEST_TEXT = "!!! Please Enter A \033[3mValid\033[0m Number !!!\t";
+    private static final String TRY_AGAIN_TEXT = "Please Try Again\t";
 
     private static final String ERROR_OCCURRED_REQUEST_TEXT =
             "\n*** An Error Occured. Please Try Again And Enter A \033[3mValid\033[0m Number! ***\t";
@@ -109,7 +112,12 @@ public class Console {
                     printErrorMessage(VALID_NUMBER_REQUEST_TEXT);
                     scanner.next();
                 } catch (ExecutionException | InterruptedException exception) {
-                    printErrorMessage(ERROR_OCCURRED_REQUEST_TEXT);
+                    Throwable cause = exception.getCause();
+
+                    if (cause instanceof InsufficientBalanceException || cause instanceof NegativeAmountException)
+                        printErrorMessage(cause.getMessage() + System.lineSeparator() + TRY_AGAIN_TEXT);
+                    else
+                        printErrorMessage(ERROR_OCCURRED_REQUEST_TEXT);
                 }
             }
         } finally {
@@ -155,6 +163,8 @@ public class Console {
         Long accountNumber = scanner.nextLong();
         System.out.print("Enter The Amount:");
         double amount = scanner.nextDouble();
+        if (amount < 0)
+            throw new NegativeAmountException();
 
         TransactionInfo transactionInfo = new TransactionInfo();
         transactionInfo.setMainAccountNumber(accountNumber);
@@ -174,6 +184,8 @@ public class Console {
         String holderName = scanner.nextLine();
         System.out.print("Enter The Initial Balance:");
         double initialBalance = scanner.nextDouble();
+        if (initialBalance < 0)
+            throw new NegativeAmountException();
 
         TransactionInfo transactionInfo = new TransactionInfo();
         transactionInfo.setAmount(initialBalance);

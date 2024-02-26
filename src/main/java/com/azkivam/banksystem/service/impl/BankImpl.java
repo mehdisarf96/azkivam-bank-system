@@ -1,6 +1,7 @@
 package com.azkivam.banksystem.service.impl;
 
 import com.azkivam.banksystem.entity.BankAccount;
+import com.azkivam.banksystem.exception.InsufficientBalanceException;
 import com.azkivam.banksystem.logger.Subject;
 import com.azkivam.banksystem.dao.GenericDao;
 import com.azkivam.banksystem.service.Bank;
@@ -55,6 +56,9 @@ public class BankImpl extends Subject implements Bank {
             BankAccount bankAccount = accountDao.get(accountNumber);
             Double currentBalance = bankAccount.getBalance();
             Double futureBalance = currentBalance - amount;
+            if (futureBalance < 0)
+                throw new InsufficientBalanceException();
+
             bankAccount.setBalance(futureBalance);
             BankAccount updatedAccount = accountDao.update(bankAccount);
             notifyObservers(String.valueOf(updatedAccount.getAccountNumber()), TransactionType.WITHDRAW_LABEL, amount);
@@ -68,7 +72,10 @@ public class BankImpl extends Subject implements Bank {
         synchronized (transferLock) {
             BankAccount sourceAccount = accountDao.get(sourceAccountNumber);
             BankAccount destinationAccount = accountDao.get(destinationAccountNumber);
-            sourceAccount.setBalance(sourceAccount.getBalance() - amount);
+            double sourceAccountFutureBalance = sourceAccount.getBalance() - amount;
+            if (sourceAccountFutureBalance < 0)
+                throw new InsufficientBalanceException("The Source Account Does NOT Have Enough Balance");
+            sourceAccount.setBalance(sourceAccountFutureBalance);
             destinationAccount.setBalance(destinationAccount.getBalance() + amount);
             accountDao.update(sourceAccount);
             accountDao.update(destinationAccount);

@@ -39,9 +39,7 @@
 2024-02-26 02:03:13,386 220779 [pool-5-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:270000.0
 2024-02-26 02:03:32,241 239634 [pool-2-thread-4] INFO  TransactionObserverImpl - Transaction Type:CREATE -- Account Number:46 -- Amount:0.0
 2024-02-26 02:03:44,662 252055 [pool-2-thread-5] INFO  TransactionObserverImpl - Transaction Type:DEPOSIT -- Account Number:46 -- Amount:80000.0
-2024-02-26 02:04:55,332 322725 [pool-2-thread-6] INFO  TransactionObserverImpl - Transaction Type
-
-:WITHDRAW -- Account Number:19 -- Amount:30000.0
+2024-02-26 02:04:55,332 322725 [pool-2-thread-6] INFO  TransactionObserverImpl - Transaction Type:WITHDRAW -- Account Number:19 -- Amount:30000.0
 2024-02-26 02:05:43,550 370943 [pool-2-thread-7] INFO  TransactionObserverImpl - Transaction Type:DEPOSIT -- Account Number:7 -- Amount:30000.0
 2024-02-26 02:05:54,644 382037 [pool-2-thread-8] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:300000.0
 2024-02-26 02:06:00,946 388339 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:19 -- Amount:500000.0
@@ -62,3 +60,19 @@
 2024-02-26 02:31:49,885 512624 [pool-4-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:200000.0
 2024-02-26 02:31:49,890 512629 [pool-4-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:46 -- Amount:100000.0
 2024-02-26 02:32:25,891 548630 [pool-2-thread-7] INFO  TransactionObserverImpl - Transaction Type:WITHDRAW -- Account Number:7 -- Amount:400000.0
+2024-02-26 03:03:37,841 12814 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:46 -- Amount:100000.0
+2024-02-26 03:26:19,926 30956 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:-200000.0
+2024-02-26 03:26:45,727 56757 [pool-2-thread-2] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:9 -- Amount:65.0
+2024-02-26 03:26:59,707 70737 [pool-2-thread-4] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:45 -- Amount:240000.0
+2024-02-26 03:27:09,319 80349 [pool-2-thread-5] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:46 -- Amount:100000.0
+2024-02-26 03:27:56,404 127434 [pool-2-thread-7] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:-200000.0
+2024-02-26 03:28:11,712 142742 [pool-2-thread-8] INFO  TransactionObserverImpl - Transaction Type:DEPOSIT -- Account Number:7 -- Amount:200000.0
+2024-02-26 03:34:01,456 22440 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:0.0
+2024-02-26 03:37:02,660 15354 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:0.0
+2024-02-26 03:39:07,801 74581 [pool-2-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:0.0
+2024-02-26 03:39:34,238 101018 [pool-2-thread-3] INFO  TransactionObserverImpl - Transaction Type:WITHDRAW -- Account Number:9 -- Amount:10.0
+2024-02-26 03:39:51,983 118763 [pool-3-thread-1] INFO  TransactionObserverImpl - Transaction Type:TRANSFER -- Account Number:7 -- Amount:5.0
+2024-02-26 03:39:51,987 118767 [pool-3-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:9 -- Amount:50.0
+2024-02-26 03:39:51,990 118770 [pool-3-thread-1] INFO  TransactionObserverImpl - Transaction Type:BALANCE -- Account Number:7 -- Amount:5.0
+2024-02-26 03:40:49,941 176721 [pool-2-thread-4] INFO  TransactionObserverImpl - Transaction Type:DEPOSIT -- Account Number:7 -- Amount:100.0
+2024-02-26 03:40:58,849 185629 [pool-2-thread-5] INFO  TransactionObserverImpl - Transaction Type:DEPOSIT -- Account Number:9 -- Amount:45.0
